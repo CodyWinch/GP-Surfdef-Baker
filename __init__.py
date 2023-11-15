@@ -28,8 +28,8 @@ bl_info = {
 
 
 class GPBScnProperties(PropertyGroup):
-    target_object: StringProperty(
-        default='', description="Target mesh to deform the active grease pencil object")
+    target_object: PointerProperty(
+        type=bpy.types.Object)
 
     # copy_and_separate_bool: BoolProperty(default=False, description="")
 
@@ -45,7 +45,7 @@ def main(context):
     scn = context.scene
     scn_props = context.scene.gpb_props
 
-    tar = data.objects[scn_props.target_object]
+    tar = scn_props.target_object
     gp = context.active_object
 
     # Cache active frame strokes world space data
@@ -134,11 +134,7 @@ class BakeGPSurfaceDeform(Operator):
 
     @classmethod
     def poll(cls, context):
-        return context.scene.gpb_props.target_object is not ''
-
-    @classmethod
-    def poll(cls, context):
-        return context.scene.gpb_props.target_object in bpy.data.objects
+        return context.scene.gpb_props.target_object is not None
 
     def execute(self, context):
         main(context)
@@ -174,8 +170,7 @@ class GPB_PT_tools_panel(Panel):
 
         row = box.row(align=True)
         row.alignment = 'CENTER'
-        row.prop_search(scn_prop, 'target_object', data,
-                        'objects', text='')
+        row.prop(scn_prop, 'target_object', text='Surface Binding Object')
         row.alignment = 'CENTER'
 
         row = box.row(align=True)
